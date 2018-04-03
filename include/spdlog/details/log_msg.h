@@ -10,6 +10,7 @@
 
 #include <string>
 #include <utility>
+#include <map>
 
 namespace spdlog {
 namespace details {
@@ -40,6 +41,7 @@ struct log_msg
     fmt::MemoryWriter raw;
     fmt::MemoryWriter formatted;
     size_t msg_id{0};
+	std::map<std::string, std::string> properties;
 };
 } // namespace details
 } // namespace spdlog

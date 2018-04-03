@@ -41,6 +41,8 @@ public:
     template<typename... Args>
     void log(level::level_enum lvl, const char *msg);
 
+	void log(level::level_enum lvl, const char *msg, std::map<std::string, std::string> properties);
+
     template<typename Arg1, typename... Args>
     void trace(const char *fmt, const Arg1 &, const Args &... args);
 

@@ -104,6 +104,30 @@ inline void spdlog::logger::log(level::level_enum lvl, const char *msg)
     }
 }
 
+inline void spdlog::logger::log(level::level_enum lvl, const char *msg, std::map<std::string, std::string> properties)
+{
+    if (!should_log(lvl))
+    {
+        return;
+    }
+    try
+    {
+        details::log_msg log_msg(&_name, lvl);
+        log_msg.raw << msg;
+		log_msg.properties = properties;
+        _sink_it(log_msg);
+    }
+    catch (const std::exception &ex)
+    {
+        _err_handler(ex.what());
+    }
+    catch (...)
+    {
+        _err_handler("Unknown exception in logger " + _name);
+        throw;
+    }
+}
+
 template<typename T>
 inline void spdlog::logger::log(level::level_enum lvl, const T &msg)
 {
