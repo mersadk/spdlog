@@ -10,6 +10,7 @@
 
 #include <memory>
 #include <string>
+#include <iostream>
 
 // create logger with given name, sinks and the default pattern formatter
 // all other ctors will call this one

@@ -51,6 +51,7 @@ class async_log_helper
         std::string txt;
         async_msg_type msg_type;
         size_t msg_id;
+		std::map<std::string, std::string> properties;
 
         async_msg() = default;
         ~async_msg() = default;
@@ -69,7 +70,8 @@ class async_log_helper
                                                        thread_id(other.thread_id),
                                                        txt(std::move(other.txt)),
                                                        msg_type(std::move(other.msg_type)),
-                                                       msg_id(other.msg_id)
+                                                       msg_id(other.msg_id),
+													   properties(other.properties)
         {
         }
 
@@ -82,6 +84,7 @@ class async_log_helper
             txt = std::move(other.txt);
             msg_type = other.msg_type;
             msg_id = other.msg_id;
+			properties = other.properties;
             return *this;
         }
 
@@ -97,6 +100,7 @@ class async_log_helper
             , txt(m.raw.data(), m.raw.size())
             , msg_type(async_msg_type::log)
             , msg_id(m.msg_id)
+			, properties(m.properties)
         {
 #ifndef SPDLOG_NO_NAME
             logger_name = *m.logger_name;
@@ -112,6 +116,7 @@ class async_log_helper
             msg.thread_id = thread_id;
             msg.raw << txt;
             msg.msg_id = msg_id;
+			msg.properties = properties;
         }
     };
 
