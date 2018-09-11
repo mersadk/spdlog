@@ -6,7 +6,6 @@
 #pragma once
 
 #include "../logger.h"
-#include "../sinks/stdout_sinks.h"
 
 #include <memory>
 #include <string>
@@ -70,15 +69,7 @@ inline void spdlog::logger::log(level::level_enum lvl, const char *fmt, const Ar
 #endif
         _sink_it(log_msg);
     }
-    catch (const std::exception &ex)
-    {
-        _err_handler(ex.what());
-    }
-    catch (...)
-    {
-        _err_handler("Unknown exception in logger " + _name);
-        throw;
-    }
+    SPDLOG_CATCH_AND_HANDLE
 }
 
 template<typename... Args>
@@ -94,15 +85,7 @@ inline void spdlog::logger::log(level::level_enum lvl, const char *msg)
         log_msg.raw << msg;
         _sink_it(log_msg);
     }
-    catch (const std::exception &ex)
-    {
-        _err_handler(ex.what());
-    }
-    catch (...)
-    {
-        _err_handler("Unknown exception in logger " + _name);
-        throw;
-    }
+    SPDLOG_CATCH_AND_HANDLE
 }
 
 inline void spdlog::logger::log(level::level_enum lvl, const char *msg, std::map<std::string, std::string> properties)
@@ -142,15 +125,7 @@ inline void spdlog::logger::log(level::level_enum lvl, const T &msg)
         log_msg.raw << msg;
         _sink_it(log_msg);
     }
-    catch (const std::exception &ex)
-    {
-        _err_handler(ex.what());
-    }
-    catch (...)
-    {
-        _err_handler("Unknown exception in logger " + _name);
-        throw;
-    }
+    SPDLOG_CATCH_AND_HANDLE
 }
 
 template<typename Arg1, typename... Args>
@@ -357,10 +332,14 @@ inline void spdlog::logger::_set_formatter(formatter_ptr msg_formatter)
 
 inline void spdlog::logger::flush()
 {
-    for (auto &sink : _sinks)
+    try
     {
-        sink->flush();
+        for (auto &sink : _sinks)
+        {
+            sink->flush();
+        }
     }
+    SPDLOG_CATCH_AND_HANDLE
 }
 
 inline void spdlog::logger::_default_err_handler(const std::string &msg)
@@ -370,13 +349,11 @@ inline void spdlog::logger::_default_err_handler(const std::string &msg)
     {
         return;
     }
+    _last_err_time = now;
     auto tm_time = details::os::localtime(now);
     char date_buf[100];
     std::strftime(date_buf, sizeof(date_buf), "%Y-%m-%d %H:%M:%S", &tm_time);
-    details::log_msg err_msg;
-    err_msg.formatted.write("[*** LOG ERROR ***] [{}] [{}] [{}]{}", name(), msg, date_buf, details::os::default_eol);
-    sinks::stderr_sink_mt::instance()->log(err_msg);
-    _last_err_time = now;
+    fmt::print(stderr, "[*** LOG ERROR ***] [{}] [{}] {}\n", date_buf, name(), msg);
 }
 
 inline bool spdlog::logger::_should_flush_on(const details::log_msg &msg)

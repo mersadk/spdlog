@@ -42,6 +42,9 @@ struct log_msg
     fmt::MemoryWriter formatted;
     size_t msg_id{0};
 	std::map<std::string, std::string> properties;
+    // wrap this range with color codes
+    size_t color_range_start{0};
+    size_t color_range_end{0};
 };
 } // namespace details
 } // namespace spdlog
